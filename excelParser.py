@@ -1,6 +1,9 @@
-import csv, yaml, openpyxl, sys, getopt, re, argparse
-#sys and getopt for the input arguments, re for the regular expression input testing 
-#todo: add the input xlsx as an argument
+import yaml, openpyxl, re, argparse, sys
+# re for the regular expression input testing 'Match'
+# argpars todo: add the input xlsx as an argument
+# openpyxl enables the WorkBook manipulation
+# import yaml - use this for exporting yaml
+# sys enables the sys.exit()
 
 
 from openpyxl import workbook,load_workbook
@@ -16,17 +19,44 @@ head_out_file.truncate() # clear the file contents
 ingress_out_file.truncate() # clear the file contents
 egress_out_file.truncate()  # clear the file content
 ingress_out_file.write('ingress_rules:\n') # set Yaml Variable Hash name in the file
-egress_out_file.write('egress_rules:\n')   # set Yaml Variable Hash name in the file
-#ipPattern = []
-#portpattern
+egress_out_file.write('egress_rules:\n')   # set Yaml Variable Hash name in the file 
 
 try:
-#    super_region = ws['B' + str(row)].value
+    #Take in the boilerplate of Region, VPC ID, 
+    super_region = ws['B2'].value
+    #Validate that Region is set to us-east-1 
+    match = re.match('^us-east-1', super_region)
+    if match:
+        print ('You are using Region = %s' % super_region)
+    else:
+        print ('You did NOT list us-east-1, but %s instead' % super_region)
+        sys.exit()
     
+    super_vpc_id = ws['C2'].value
+    #Validate that vpc input starts with "vpc_" and has 9digits or chars after it
+    match = re.match("^vpc-[\\'a-zA-Z0-9\\']{8}", super_vpc_id)
+    if match:
+        print ('You are using VPC-ID = %s' % super_vpc_id)
+    else:
+        print ('You did NOT a valid VPC-ID, %s' % super_vpc_id)
+        sys.exit()
+    
+    super_name = ws['E2'].value
+    super_description = ws['F2'].value
+    
+    #Write the BoilerPlate for Ansible
     head_out_file.write("---\n- hosts: localhost\n  tasks:\n    - include_vars: ingress_rules.yaml\n    - include_vars: egress_rules.yaml\n    - name: Create Groups\n      ec2_group:\n")
+    head_out_file.write("        region: %s\n" % (super_region))
+    head_out_file.write("        vpc_id: %s\n" % (super_vpc_id))
+    head_out_file.write("        name: %s\n" % (super_name))
+    head_out_file.write("        description: %s\n" % (super_description))
+    head_out_file.write("        rules: \"{{ ingress_rules }}\"\n")
+    head_out_file.write("        rules_egress: \"{{ egress_rules }}\"\n")
     
     for row in range(2, ws.max_row + 1): #Skip the first row of headers
         #Parse the cell input and convert to strings this notation is provided by the openpyxl library
+#        current_row = row
+        print ("\nWorking with Row # %s" % (row))
         super_direction = ws['G' + str(row)].value # take in the value from the spreadsheet
         match = re.match('egress|ingress', super_direction) #set the test flag
         if match:  #loop to tell the user
