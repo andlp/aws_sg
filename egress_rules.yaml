@@ -1,0 +1,9 @@
+egress_rules:
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: "152.159.89.241/32" 
+      - proto: tcp
+        from_port: 443
+        to_port: 443
+        cidr_ip: "10.202.134.152/32" 
