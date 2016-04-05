@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  tasks:
+    - include_vars: ingress_rules.yaml
+    - include_vars: egress_rules.yaml
+    - name: Create Groups
+      ec2_group:
+        region: us-east-1
+        vpc_id: vpc-b66e62df
+        name: 77539374103
+        rules: "{{ ingress_rules }}"
+        rules_egress: "{{ egress_rules }}"
