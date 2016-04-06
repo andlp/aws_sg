@@ -104,7 +104,7 @@ try:
 		
 		#Write the File Output
 		if super_direction == "Ingress":
-			head_out_file.write("aws ec2 authorize-security-group-ingress --group-name %s --protocol %s --port %s --cidr %s;\n" %(super_sg_name, super_proto, super_from_port, super_cidr_ip))
+			head_out_file.write("aws ec2 authorize-security-group-ingress --group-name %s --protocol %s --port %s-%s --cidr %s;\n" %(super_sg_name, super_proto, super_from_port, super_to_port, super_cidr_ip))
 		elif super_direction == "Egress":
 			head_out_file.write("aws ec2 authorize-security-group-egress --group-id %s --ip-permissions '[{\"IpProtocol\": \"%s\", \"FromPort\": %s, \"ToPort\": %s, \"IpRanges\": [{\"CidrIp\": \"%s\"}]}]' \n"  %(super_sg_id, super_proto, super_from_port, super_to_port, super_cidr_ip))
 			#head_out_file.write("aws ec2 authorize-security-group-egress --group-name %s --protocol %s --port %s --cidr %s;\n" %(super_sg_name, super_proto, super_from_port, super_cidr_ip))
