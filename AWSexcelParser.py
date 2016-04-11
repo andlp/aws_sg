@@ -16,6 +16,10 @@ def main(argv):
       if opt == '-h':
          print 'Usage: test.py -i <inputfile> -t <Excel Tab name>'
          print 'Requires AWS CLi to be installed and configured with AWS keys and Region Setting'
+         print '/n'
+         print '******* Here is the command to test your local AWS CLI.  If this doesnt work, fix your AWS CLI *******'
+         print '******* aws ec2 describe-security-groups *******'
+         print 
          print 'This script will takes an input xlsx file, and a Tab name from inside that xlsx file'
          print 'It will create Security group rules, ingress and egress'
          print 'This script expects the VPC and Security Group ID and Security Group Name to Pre-exist'
@@ -48,6 +52,8 @@ def main(argv):
        print ("\nWorking with Row # %s" % (row))
        
        #Set the Security Group Name
+       #ToDo: check the env against the sheet with callouts
+       # aws ec2 describe-security-groups | grep sg-4d3f1d35 
        super_sg_name = ws['A' + str(row)].value # take in the value from the spreadsheet
        match = re.match('[^\>]*', super_sg_name) #set the test flag anything that s not a < 
        if match:  #loop to tell the user
@@ -137,8 +143,22 @@ def main(argv):
            head_out_file.write("aws ec2 authorize-security-group-egress --group-id %s --ip-permissions '[{\"IpProtocol\": \"%s\", \"FromPort\": %s, \"ToPort\": %s, \"IpRanges\": [{\"CidrIp\": \"%s\"}]}]' \n"  %(super_sg_id, super_proto, super_from_port, super_to_port, super_cidr_ip))
     
    head_out_file.close()
-   os.system("./build_head.sh")
-  
+   print ("\n\nData Processing has completed.  Proceeding with changes to AWS.")
+   
+   #Accept input, cast to string, and set match flag
+   do_it = raw_input('Would you like to push these changes to AWS? YES or NO \n')
+   do_it = str(do_it)
+   print (do_it)
+   match = re.match('^yes', do_it, re.IGNORECASE)
+   
+   #Execute to AWS
+   if match:
+      print ('OK, here we go :-)')
+      os.system("./build_head.sh")
+   #Dont Execute to AWS
+   else:
+   	  print("Sounds good, Exiting now without changing AWS.")
+   	  sys.exit()
 
 if __name__ == "__main__":
    main(sys.argv[1:])
