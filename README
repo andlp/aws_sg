@@ -1,0 +1,9 @@
+Usage: AWSexelParser.py -i <inputfile> -t <Excel Tab name>
+Requires AWS CLi to be installed and configured with AWS keys and Region Setting
+
+******* Here is the command to test your local AWS CLI.  If this doesnt work, fix your AWS CLI *******
+******* aws ec2 describe-security-groups *******
+
+This script will takes an input xlsx file, and a Tab name from inside that xlsx file
+It will create Security group rules, ingress and egress
+This script expects the VPC and Security Group ID and Security Group Name to Pre-exist
