@@ -58,7 +58,7 @@ def main(argv):
        
        # Set the Direction
        super_direction = ws['F' + str(row)].value # take in the value from the spreadsheet
-       match = re.match('Ingress|Egress', super_direction) #set the test flag
+       match = re.match('Ingress|Egress', super_direction, re.IGNORECASE) #set the test flag
        if match:  #loop to tell the user
            print ('Direction is good: %s' % (super_direction))
            if super_direction == 'Ingress':
@@ -120,7 +120,7 @@ def main(argv):
        
        # Set the Protocol
        super_proto = ws['G' + str(row)].value
-       match = re.match('udp|tcp', super_proto)
+       match = re.match('udp|tcp', super_proto, re.IGNORECASE)
        if match:
             print ('Protocol is good: %s' % (super_proto))
             add_opt = ('--protocol %s ' %(super_proto)) 
@@ -174,13 +174,23 @@ def main(argv):
        if dest_match:
            super_dest_group_id = dest_match.group(1)
            print ("Destination Group is good: %s" % (super_dest_group_id))
+           
+       #set the Group Owner     
+       super_dest_group_owner = ws['K' + str(row)].value
+       super_dest_group_owner = str(super_dest_group_owner)
+       owner_match = re.search('.* (\w\w\w\w\w\w\w\w\w\w\w\w).*', super_dest_group_owner)
+       if owner_match:
+           super_dest_group_owner = owner_match.group(1)
+           print ("Group Owner is good: %s" % (super_dest_group_owner))
        
        #Set Destination Output
        if cidr_match:
-           add_opt = ('--cidr %s' % (super_cidr_ip))
+           add_opt = ('--cidr %s ' % (super_cidr_ip))
            command_string += add_opt
        elif dest_match:
-           add_opt = ('--source-group %s' % (super_dest_group_id))
+           add_opt = ('--source-group %s ' % (super_dest_group_id))
+           command_string += add_opt
+           add_opt = ('--group-owner %s' % (super_dest_group_owner))
            command_string += add_opt
              
        #Write the File Output
